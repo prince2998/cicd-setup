@@ -4,8 +4,8 @@ resource "aws_security_group" "allow_req_ports_jenkins" {
 
  ingress {
     description = "TLS from VPC"
-    from_port   = [var.ports]
-    to_port     = [var.ports]
+    from_port   = 22
+    to_port     = 32767
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
