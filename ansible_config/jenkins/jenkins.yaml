@@ -106,6 +106,12 @@
       lineinfile:
         path: /etc/sudoers
         line: 'jenkins ALL=(ALL) NOPASSWD: ALL'    
+    
+    - name: Install kubectl  
+      snap: 
+        name: kubectl
+        classic: true
+        state: present
 
     - name: Create kubectl alias for root user
       lineinfile:

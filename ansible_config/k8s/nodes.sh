@@ -1,4 +1,4 @@
-printf "\n172.31.11.125 k8s-master\n172.31.8.143 k8s-node1\n\n" >> /etc/hosts
+printf "\n172.31.47.162 k8s-master\n k8s-node1\n\n" >> /etc/hosts
 swapoff -a
 sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 
@@ -48,12 +48,14 @@ sysctl net.bridge.bridge-nf-call-iptables net.bridge.bridge-nf-call-ip6tables ne
 modprobe br_netfilter
 sysctl -p /etc/sysctl.conf
 
-apt-get update -y &&  apt-get install -y apt-transport-https curl
-curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg |  apt-key add -
+sudo apt-get update -y && sudo apt-get install -y apt-transport-https curl gpg ca-certificates
+sudo mkdir -m 755 /etc/apt/keyrings
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 
 cat <<EOF |  tee /etc/apt/sources.list.d/kubernetes.list
-deb https://apt.kubernetes.io/ kubernetes-xenial main
+deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /
 EOF
+
 apt update -y
 apt-get install -y kubelet  kubeadm kubectl 
 apt-mark hold kubelet kubeadm kubectl

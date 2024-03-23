@@ -23,7 +23,7 @@ ansible-playbook -i ../ansible_config/inventory ../ansible_config/nexus/nexus.ya
 echo -e "\n\033[1;32mConfiguration completed, Nexus Repository Manager running at \033[1;34mhttp://$nexus_public_ip:8081\033[0m\n"
 
 echo -e "\n\033[1;32mConfiguring Kubernetes cluster using the Ansible playbook k8s_cluster_setup.yaml...\033[0m\n"
-ansible-playbook -i ../ansible_config/inventory ../ansible_config/k8s/k8s_cluster_setup.yaml --timeout 30
+ansible-playbook -t . -i ../ansible_config/inventory ../ansible_config/k8s/k8s_cluster_setup.yaml --timeout 30
 echo -e "\n\033[1;32mConfiguration completed, kubernetes cluster deployed\033[0m\n"
 
 echo -e "\n\033[1mThe following details can be used to access the resources.\033[0m\n"

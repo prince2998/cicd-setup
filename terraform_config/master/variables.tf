@@ -6,9 +6,9 @@ variable "aws_region" {
   type = string
 
 }
-#variable "ports" {
-#  type = list(number)
-#}
+variable "ports" {
+  type = list(number)
+}
 
 variable "instance_type" {
   type = string
