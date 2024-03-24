@@ -35,6 +35,6 @@ node1_private_ip=`terraform -chdir="../../terraform_config/node1" output | grep 
 node2_private_ip=`terraform -chdir="../../terraform_config/node2" output | grep private_ip |awk '{print $3}' | tr -d '"'`
 
 echo -e "\n$master_private_ip\tk8s-master\n" | sudo tee -a /etc/hosts >/dev/null
-echo -e "\n$node1_private_ip\tk8s-master\n" | sudo tee -a /etc/hosts >/dev/null
-echo -e "\n$node2_private_ip\tk8s-master\n" | sudo tee -a /etc/hosts >/dev/null
+echo -e "\n$node1_private_ip\tk8s-node1\n" | sudo tee -a /etc/hosts >/dev/null
+echo -e "\n$node2_private_ip\tk8s-node2\n" | sudo tee -a /etc/hosts >/dev/null
 
