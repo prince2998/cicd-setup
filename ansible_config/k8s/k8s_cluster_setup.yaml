@@ -153,12 +153,11 @@
   hosts: jenkins
   become: true
   tasks:
-  - name: Install kubectl  
-    snap: 
-    - name: kubectl
-      classic: true
-      state: present
-      update_cache: yes
+    - name: Install kubectl
+      snap:
+        name: kubectl
+        state: present
+        update_cache: yes
     - name: Create directory and set ownership of .kube directory for jenkins user
       file:
         path: /var/lib/jenkins/.kube
