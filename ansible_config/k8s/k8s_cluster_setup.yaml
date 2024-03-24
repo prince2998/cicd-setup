@@ -140,13 +140,13 @@
       flat: yes
     delegate_to: k8s-master
   - name: Copy the kubeconfig to the worker nodes
-      copy:
-        src: "./{{ inventory_hostname }}/admin.conf"
-        dest: "/home/ubuntu/.kube/config"
-        owner: ubuntu
-        group: ubuntu
-        mode: '0644'
-      when: inventory_hostname != 'k8s-master'
+    copy:
+     src: "./{{ inventory_hostname }}/admin.conf"
+     dest: "/home/ubuntu/.kube/config"
+     owner: ubuntu
+     group: ubuntu
+     mode: '0644'
+    when: inventory_hostname != 'k8s-master'
 
 ##### PLAY 2 : INSTALL KUBECTL, CREATE .kube direcoty in $HOME of jenkins user, copy kubeconfig from localhost buffer to Jenkins server and sets the permission to 0600 and ownership to jenkins:jenkins#####
 - name: Jenkins User kubectl Setup

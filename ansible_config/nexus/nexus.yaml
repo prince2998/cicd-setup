@@ -1,69 +1,40 @@
 ---
-- name: Nexus Installation & configure
-- hosts: nexus
-  become: yes
-  vars:
-    nexus_version: "3.66.0-02"
-    nexus_user: nexus
-    nexus_group: nexus
-    nexus_home: /opt/nexus
-    nexus_data: /opt/sonatype-work
-    nexus_url: "https://download.sonatype.com/nexus/3/nexus-{{ nexus_version }}-unix.tar.gz"
+- name: Install Docker and Nexus
+  hosts: nexus
+  become: true
+
   tasks:
-    - name: Create Nexus User and Group
-      group:
-        name: "{{ nexus_group }}"
+  - name: Install required packages for Docker
+    apt:
+    - name:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - gnupg-agent
+        - software-properties-common
+      state: present
+      update_cache: yes
+
+    - name: Add Docker’s official GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
         state: present
-      user:
-        name: "{{ nexus_user }}"
-        group: "{{ nexus_group }}"
-        system: yes
-        createhome: no
-        shell: /bin/false
 
-    - name: Create Directories for Nexus
-      file:
-        path: "{{ item }}"
-        state: directory
-        owner: "{{ nexus_user }}"
-        group: "{{ nexus_group }}"
-      with_items:
-        - "{{ nexus_home }}"
-        - "{{ nexus_data }}"
+    - name: Set up the stable repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+        state: present
 
-    - name: Download Nexus
-      get_url:
-        url: "{{ nexus_url }}"
-        dest: "/tmp/nexus.tar.gz"
+    - name: Install Docker CE
+      apt:
+        name: 
+          - docker-ce 
+          - docker-ce-cli 
+          - containerd.io  
+          - docker-buildx-plugin  
+          - docker-compose-plugin
+        state: latest
+        update_cache: yes
 
-    - name: Extract Nexus
-      unarchive:
-        src: "/tmp/nexus.tar.gz"
-        dest: "{{ nexus_home }}"
-        remote_src: yes
-        extra_opts: [--strip-components=1]
-        creates: "{{ nexus_home }}/bin/nexus"
-      notify: Start Nexus
-
-    - name: Set Nexus as a Service
-      template:
-        src: nexus.service.j2
-        dest: /etc/systemd/system/nexus.service
-      notify: Reload Systemd
-
-    - name: Start Nexus Service
-      systemd:
-        name: nexus
-        enabled: yes
-        state: started
-
-  handlers:
-    - name: Reload Systemd
-      systemd:
-        daemon_reload: yes
-
-    - name: Start Nexus
-      systemd:
-        name: nexus
-        state: started
-        enabled: yes
+  - name: Start Nexus container
+    shell: docker run -d -p 8081:8081 --name=sonar sonatype/nexus3:latest
