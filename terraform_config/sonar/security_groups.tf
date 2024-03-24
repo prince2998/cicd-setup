@@ -13,6 +13,7 @@ resource "aws_security_group" "allow_req_ports_sonar" {
         cidr_blocks = ["0.0.0.0/0"]
       }   
     }
+    
   ingress {
     description = "TLS from VPC"
     from_port   = 3000
