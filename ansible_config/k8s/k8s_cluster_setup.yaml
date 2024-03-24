@@ -12,14 +12,14 @@
           3262643337623263310a633138356636376436643234626666353638633436613535356466383034
           3338
   tasks:
-  - name: Set user password
-    user:
-      name: prince
-      password: "{{ encrypted_password }}"
+    - name: Set user password
+      user:
+        name: prince
+        password: "{{ encrypted_password }}"
   
-  - name: Run add_k8s_ip.sh
-    become: true
-    shell: ./add_k8s_ip.sh
+    - name: Run add_k8s_ip.sh
+      become: true
+      shell: ./add_k8s_ip.sh
 
 ##### Play to setup and configure k8s control plane node #####
 - name: Setup k8s Control Plane (master) node
