@@ -24,7 +24,7 @@
       register: kubernetes_join_command
       changed_when: false
       delegate_to: localhost
-       run_once: true
+      run_once: true
     - name: Create join_cluster to local file
       become: yes
       copy: 
@@ -79,9 +79,9 @@ handlers:
         - Reload bashrc
 - handlers: 
   - name: Reload bashrc
-      shell: 'source /home/ubuntu/.bashrc'
-      args:
-        executable: /bin/bash
+    shell: 'source /home/ubuntu/.bashrc'
+    args:
+      executable: /bin/bash
 
 ##### Play to setup and configure k8s worker node1 #####
 - name: Setup k8s worker node
