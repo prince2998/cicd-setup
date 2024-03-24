@@ -39,7 +39,7 @@
         dest: /root/.bashrc
         line: 'alias k=kubectl'
         state: present
-handlers:
+- handlers:
   - name: Hold kubelet, kubeadm, and kubectl at current version
     apt:
       name: "{{ item }}"
