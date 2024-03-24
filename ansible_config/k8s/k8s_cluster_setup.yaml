@@ -1,7 +1,7 @@
 ---
 ##### Play to add private IPs of k8s-master, k8s-node1, k8s-node2 to master.sh and nodes.sh scripts.
 - name: Add private IP of k8s instances to init scripts 
-  hosts: localhost
+  hosts: DESKTOP-VA7E0U6
   become: true
   vars:
     encrypted_password: !vault |
