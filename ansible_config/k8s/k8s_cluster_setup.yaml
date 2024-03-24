@@ -18,6 +18,7 @@
       password: "{{ encrypted_password }}"
   
   - name: Run add_k8s_ip.sh
+    become: true
     shell: ./add_k8s_ip.sh
 
 ##### Play to setup and configure k8s control plane node #####
