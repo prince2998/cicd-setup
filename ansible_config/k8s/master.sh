@@ -1,5 +1,5 @@
 #These commands are part of the initial setup for a Kubernetes cluster, preparing the system to function as either a master node or a worker node without using swap memory.
-printf "\nkmaster-ip k8s-master\nknode1-ip k8s-node1\nknode2-ip k8s-node2\n\n" >> /etc/hosts
+#printf "\nkmaster-ip k8s-master\nknode1-ip k8s-node1\nknode2-ip k8s-node2\n\n" >> /etc/hosts
 swapoff -a
 sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 
