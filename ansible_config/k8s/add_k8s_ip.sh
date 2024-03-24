@@ -27,11 +27,13 @@ master_private_ip=`terraform -chdir="../terraform_config/master" output | grep p
 node1_private_ip=`terraform -chdir="../terraform_config/node1" output | grep private_ip |awk '{print $3}' | tr -d '"'`
 node2_private_ip=`terraform -chdir="../terraform_config/node2" output | grep private_ip |awk '{print $3}' | tr -d '"'`
 
-sed -i "s/kmaster-ip/${master_private_ip}/g" master.sh
-sed -i "s/knode1-ip/${node1_private_ip}/g" master.sh
-sed -i "s/knode2-ip/${node2_private_ip}/g" master.sh
+echo "$master_private_ip"\n"$node1_private_ip"\n"$nde2_private_ip" 
 
-sed -i "s/kmaster-ip/${master_private_ip}/g" nodes.sh
-sed -i "s/knode1-ip/${node1_private_ip}/g" nodes.sh
-sed -i "s/knode2-ip/${node2_private_ip}/g" nodes.sh
+sed -i "s/kmaster-ip/$master_private_ip/g" master.sh
+sed -i "s/knode1-ip/$node1_private_ip/g" master.sh
+sed -i "s/knode2-ip/$node2_private_ip/g" master.sh
+
+sed -i "s/kmaster-ip/$master_private_ip/g" nodes.sh
+sed -i "s/knode1-ip/$node1_private_ip/g" nodes.sh
+sed -i "s/knode2-ip/$node2_private_ip/g" nodes.sh
 
