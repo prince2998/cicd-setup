@@ -11,34 +11,34 @@
   hosts: k8s-master
   become: true
   tasks:
-    - name: Copy master.sh script to k8s control plane node
-      copy:
-        src: master.sh
-        dest: /root/master.sh
-        mode: '0755'
-    - name: Configure Control Plane (master) node
-      shell: /root/master.sh
-      notify: Hold kubelet, kubeadm, and kubectl at current version
-    - name: Get kubeadm join command
-      shell: kubeadm token create --print-join-command
-      register: kubernetes_join_command
-      changed_when: false
-      delegate_to: localhost
-      run_once: true
-    - name: Create join_cluster to local file
-      become: yes
-      copy: 
-        content: "{{ kubernetes_join_command.stdout }}" 
-        dest: ~/kubernetes_join_command 
-        owner: ubuntu
-        mode: '0644'
-      delegate_to: localhost
-      run_once: true
-    - name: Create kubectl alias
-      lineinfile:
-        dest: /root/.bashrc
-        line: 'alias k=kubectl'
-        state: present
+  - name: Copy master.sh script to k8s control plane node
+    copy:
+      src: master.sh
+      dest: /root/master.sh
+      mode: '0755'
+  - name: Configure Control Plane (master) node
+    shell: /root/master.sh
+    notify: Hold kubelet, kubeadm, and kubectl at current version
+  - name: Get kubeadm join command
+    shell: kubeadm token create --print-join-command
+    register: kubernetes_join_command
+    changed_when: false
+    delegate_to: localhost
+    run_once: true
+  - name: Create join_cluster to local file
+    become: yes
+    copy: 
+      content: "{{ kubernetes_join_command.stdout }}" 
+      dest: ~/kubernetes_join_command 
+      owner: ubuntu
+      mode: '0644'
+    delegate_to: localhost
+    run_once: true
+  - name: Create kubectl alias
+    lineinfile:
+      dest: /root/.bashrc
+      line: 'alias k=kubectl'
+      state: present
 - handlers:
   - name: Hold kubelet, kubeadm, and kubectl at current version
     apt:
@@ -54,29 +54,29 @@
   hosts: k8s-master
   become: true
   tasks:
-    - name: Create .kube directory for ubuntu user
-      file:
-        path: /home/ubuntu/.kube
-        state: directory
-        owner: ubuntu
-        group: ubuntu
-        mode: '0755'
-    - name: Copy admin.conf to ubuntu's .kube directory
-      copy:
-        remote_src: "true"
-        src: /etc/kubernetes/admin.conf
-        dest: /home/ubuntu/.kube/config
-        owner: ubuntu
-        group: ubuntu
-        mode: '0644'
-    - name: Set environment variable for kubectl for Ubuntu user 
-      lineinfile:
-        dest: /home/ubuntu/.bashrc
-        line: 'export KUBECONFIG=/home/ubuntu/.kube/config'
-        state: present
-        create: yes
-      notify:
-        - Reload bashrc
+  - name: Create .kube directory for ubuntu user
+    file:
+      path: /home/ubuntu/.kube
+      state: directory
+      owner: ubuntu
+      group: ubuntu
+      mode: '0755'
+  - name: Copy admin.conf to ubuntu's .kube directory
+    copy:
+      remote_src: "true"
+      src: /etc/kubernetes/admin.conf
+      dest: /home/ubuntu/.kube/config
+      owner: ubuntu
+      group: ubuntu
+      mode: '0644'
+  - name: Set environment variable for kubectl for Ubuntu user 
+    lineinfile:
+      dest: /home/ubuntu/.bashrc
+      line: 'export KUBECONFIG=/home/ubuntu/.kube/config'
+      state: present
+      create: yes
+    notify:
+      - Reload bashrc
 - handlers: 
   - name: Reload bashrc
     shell: 'source /home/ubuntu/.bashrc'
@@ -88,42 +88,42 @@
   hosts: k8s-node1
   become: true
   tasks:
-    - name: Copy nodes.sh script to k8s worker node
-      copy:
-        src: nodes.sh
-        dest: /root/nodes.sh
-        mode: '0755'
-    - name: Configure Worker node
-      shell: /root/nodes.sh
-    - name: Copy kubernetes_join_command
-      copy:
-        src: ~/kubernetes_join_command
-        dest: /root/kubernetes_join_command
-        mode: '0755'
-    - name: Join k8s cluster  
-      shell: /root/kubernetes_join_command
-      when: kubernetes_join_command is defined
+  - name: Copy nodes.sh script to k8s worker node
+    copy:
+      src: nodes.sh
+      dest: /root/nodes.sh
+      mode: '0755'
+  - name: Configure Worker node
+    shell: /root/nodes.sh
+  - name: Copy kubernetes_join_command
+    copy:
+      src: ~/kubernetes_join_command
+      dest: /root/kubernetes_join_command
+      mode: '0755'
+  - name: Join k8s cluster  
+    shell: /root/kubernetes_join_command
+    when: kubernetes_join_command is defined
 
 ##### Play to setup and configure k8s worker node2 #####
 - name: Setup k8s worker node
   hosts: k8s-node2
   become: true
   tasks:
-    - name: Copy nodes.sh script to k8s worker node
-      copy:
-        src: nodes.sh
-        dest: /root/nodes.sh
-        mode: '0755'
-    - name: Configure Worker node
-      shell: /root/nodes.sh
-    - name: Copy kubernetes_join_command
-      copy:
-        src: ~/kubernetes_join_command
-        dest: /root/kubernetes_join_command
-        mode: '0755'
-    - name: Join k8s cluster  
-      shell: /root/kubernetes_join_command
-      when: kubernetes_join_command is defined
+  - name: Copy nodes.sh script to k8s worker node
+    copy:
+      src: nodes.sh
+      dest: /root/nodes.sh
+      mode: '0755'
+  - name: Configure Worker node
+    shell: /root/nodes.sh
+  - name: Copy kubernetes_join_command
+    copy:
+      src: ~/kubernetes_join_command
+      dest: /root/kubernetes_join_command
+      mode: '0755'
+  - name: Join k8s cluster  
+    shell: /root/kubernetes_join_command
+    when: kubernetes_join_command is defined
 
 #### Plays to copy kubeconfig to jenkins server for jenkins user #### Required for Stage V & VI : Deploying application on k8s cluster #####
 
@@ -153,22 +153,22 @@
   hosts: jenkins
   become: true
   tasks:
-    - name: Install kubectl
-      snap:
-        name: kubectl
-        state: present
-        update_cache: yes
-    - name: Create directory and set ownership of .kube directory for jenkins user
-      file:
-        path: /var/lib/jenkins/.kube
-        state: directory
-        owner: jenkins
-        group: jenkins
-        mode: '0755'
-    - name: Copy the file from localhost to jenkins
-      copy:
-        src: "./{{ inventory_hostname }}/admin.conf"
-        dest: "/var/lib/jenkins/.kube/config"
-        mode: "0600"
-        owner: jenkins
-        group: jenkins
+  - name: Install kubectl
+    snap:
+      name: kubectl
+      state: present
+      update_cache: yes
+  - name: Create directory and set ownership of .kube directory for jenkins user
+    file:
+      path: /var/lib/jenkins/.kube
+      state: directory
+      owner: jenkins
+      group: jenkins
+      mode: '0755'
+  - name: Copy the file from localhost to jenkins
+    copy:
+      src: "./{{ inventory_hostname }}/admin.conf"
+      dest: "/var/lib/jenkins/.kube/config"
+      mode: "0600"
+      owner: jenkins
+      group: jenkins
