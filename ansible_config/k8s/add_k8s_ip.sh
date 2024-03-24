@@ -30,9 +30,9 @@ else echo "Dummy variables already present";
 fi
 
 echo "Adding IPs of k8s-master, k8s-node1, k8-node2 to the master.sh and nodes.sh scripts"
-master_private_ip=`terraform -chdir="../../terraform_config/master" output | grep private_ip |awk '{print $3}' | tr -d '"'`
-node1_private_ip=`terraform -chdir="../../terraform_config/node1" output | grep private_ip |awk '{print $3}' | tr -d '"'`
-node2_private_ip=`terraform -chdir="../../terraform_config/node2" output | grep private_ip |awk '{print $3}' | tr -d '"'`
+master_private_ip =`terraform -chdir="../../terraform_config/master" output | grep private_ip |awk '{print $3}' | tr -d '"'`
+node1_private_ip =`terraform -chdir="../../terraform_config/node1" output | grep private_ip |awk '{print $3}' | tr -d '"'`
+node2_private_ip =`terraform -chdir="../../terraform_config/node2" output | grep private_ip |awk '{print $3}' | tr -d '"'`
 
 echo "$master_private_ip"\n"$node1_private_ip"\n"$nde2_private_ip" 
 
