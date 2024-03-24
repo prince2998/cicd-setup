@@ -3,3 +3,4 @@ sonar ansible_host=13.201.30.100 ansible_user=ubuntu ansible_connection=ssh
 nexus ansible_host=3.110.86.17 ansible_user=ubuntu ansible_connection=ssh
 k8s-master ansible_host=3.111.23.119 ansible_user=ubuntu ansible_connection=ssh
 k8s-node1 ansible_host=13.127.149.172 ansible_user=ubuntu ansible_connection=ssh
+k8s-node2 ansible_host=13.127.149.172 ansible_user=ubuntu ansible_connection=ssh

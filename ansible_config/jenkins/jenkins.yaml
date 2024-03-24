@@ -1,124 +1,163 @@
 ---
-####### ANSIBLE PLAY TO INSTALL Jenkins ######### 
- - name: Install and start Jenkins
-   hosts: jenkins
-   become: yes
- 
-   tasks:
-    - name: ensure the jenkins apt repository key is installed
-      apt_key: url=https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key state=present
+####### ANSIBLE PLAY TO INSTALL JENKINS ######### 
+#Install Java, which is a prerequisite for Jenkins.
+#Add the Jenkins repository key and repository to your system.
+#Install Jenkins.
+#Ensure that the Jenkins service is started and enabled to start on boot. 
 
-    - name: ensure the repository is configured
-      apt_repository: repo='deb https://pkg.jenkins.io/debian-stable binary/' state=present
+- name: Install and Start Jenkins
+  hosts: jenkins
+  become: true
+  tasks:
+  - name: Install Java
+    apt: 
+      name: openjdk-17-jre 
+      state: present
 
-    - name: Ensure java is installed
-      apt: name=openjdk-11-jre state=present
+  - name: Add Jenkins Repository Key
+    apt_key: 
+      url: https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key 
+      state: present
 
-    - name: ensure jenkins is installed
-      apt: name=jenkins update_cache=yes
+  - name: Add Jenkins Repository
+    apt_repository: 
+      repo: 'deb https://pkg.jenkins.io/debian-stable binary/' 
+      state: present
 
-    - name: ensure jenkins is running
-      service: name=jenkins state=started
+  - name: Install Jenkins
+    apt: 
+      name: jenkins 
+      update_cache: yes
+
+  - name: Ensure Jenkins is running
+    service: 
+      name: jenkins 
+      state: started
+      enabled: yes
 
 ####### ANSIBLE PLAY TO INSTALL HELM ######### 
- - name: Install Helm and datree.io helm plugin
-   hosts: jenkins
-   become: true
-  
-   tasks:
-    - name: Check if Helm is installed
-      shell: helm version
-      register: helm_check
-      changed_when: false
-      ignore_errors: yes
+#Download the specified version of Helm, which is the latest release as of now.
+#Extract the Helm binary to the correct location.
+#Add Helm to the system PATH.
+#Install the datree.io Helm plugin using Helm’s plugin install command.
+#Verify the installation of the datree.io Helm plugin.
+#Confirm the versions of Helm and the datree.io Helm plugin and display them.
 
-    - name: Download Helm script
+- name: Install and confirm Helm and datree.io Helm plugin
+  hosts: jenkins
+  become: true
+  tasks:
+    - name: Download and install the latest Helm release
       get_url:
-        url: https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
-        dest: /tmp/get_helm.sh
-        mode: 0755
-      when: helm_check.rc != 0
+        url: "https://get.helm.sh/helm-v3.14.3-linux-amd64.tar.gz"
+        dest: "/tmp/helm.tar.gz"
+        validate_certs: no
 
-    - name: Install Helm
-      shell: /tmp/get_helm.sh
-      when: helm_check.rc != 0
-    
-    - name: Install unzip
-      apt: name=unzip state=present
-   
-    - name: Check if Datree plugin exists ###### Checks if datree plugin exists if not then installs it 
-      shell: "helm plugin list | grep datree"
-      register: datree_check
-      failed_when: datree_check.rc != 1 and datree_check.rc != 0
-      changed_when: false
-      check_mode: no      
-    - name: Install Datree plugin
-      shell: "helm plugin install https://github.com/datreeio/helm-datree"
-      when: datree_check.rc != 0  
+    - name: Extract Helm
+      unarchive:
+        src: "/tmp/helm.tar.gz"
+        dest: "/usr/local/bin"
+        remote_src: yes
+        extra_opts: ["--strip-components=1"]
 
-####### ANSIBLE PLAY to INSTALL DOCKER, ADD jenkins user to docker and sudo groups, give access to sudo commands to jenkins user, INSTALL KUBECTL and CONFIGURE k=kubectl alias for the root user. #########  
- - name: Install Docker
-   hosts: jenkins
-   become: true
-
-   tasks:
-    - name: Install required packages
-      apt:
-        name:
-        - apt-transport-https
-        - ca-certificates
-        - curl
-        - gnupg-agent
-        - software-properties-common
+    - name: Add Helm to PATH
+      lineinfile:
+        path: "/etc/environment"
+        line: 'PATH="$PATH:/usr/local/bin/helm"'
         state: present
 
-    - name: Add Docker GPG key
+    - name: Install datree.io Helm plugin
+      command: "helm plugin install https://github.com/datreeio/helm-datree"
+
+    - name: Verify datree.io Helm plugin installation
+      command: "helm plugin list"
+
+    - name: Confirm Helm version
+      command: "helm version"
+      register: helm_version_output
+
+    - name: Confirm datree.io Helm plugin version
+      command: "helm datree version"
+      register: datree_plugin_version_output
+
+    - name: Display Helm and datree.io Helm plugin versions
+      debug:
+        msg:
+          - "Helm version: {{ helm_version_output.stdout }}"
+          - "datree.io Helm plugin version: {{ datree_plugin_version_output.stdout }}"
+
+####### ANSIBLE PLAY to INSTALL DOCKER, ADD jenkins user to docker and sudo groups, give access to sudo commands to jenkins user, INSTALL KUBECTL and CONFIGURE k=kubectl alias for the root user. #########
+#Install the necessary packages for Docker.
+#Add Docker’s official GPG key.
+#Set up the stable Docker repository.
+#Install the latest version of Docker CE.
+#Add the Jenkins user to the Docker and sudo groups.
+#Configure passwordless sudo for the Jenkins user.
+#Install the latest version of kubectl.
+#Set an alias for kubectl as ‘k’ for the root user.
+
+- name: Install Docker, add Jenkins user, install kubectl, and configure alias
+  hosts: jenkins
+  become: true
+  tasks:
+    - name: Install required packages for Docker
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg-agent
+          - software-properties-common
+        state: present
+        update_cache: yes
+
+    - name: Add Docker’s official GPG key
       apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
         state: present
 
-    - name: Add Docker repository
+    - name: Set up the stable repository
       apt_repository:
         repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
         state: present
 
-    - name: Install Docker 
+    - name: Install Docker CE
       apt:
-        name:
-        - docker-ce
-        - docker-ce-cli
-        - containerd.io
-        state: present 
+        name: 
+          - docker-ce 
+          - docker-ce-cli 
+          - containerd.io  
+          - docker-buildx-plugin  
+          - docker-compose-plugin
+        state: latest
+        update_cache: yes
 
-    - name: Add jenkins to sudo group
-      user:
-        name: jenkins
-        groups: sudo
-        append: yes
-
-    - name: Add jenkins to docker group
+    - name: Add Jenkins user to Docker group
       user:
         name: jenkins
         groups: docker
         append: yes
 
-    - name: Add jenkins to sudoers file
+    - name: Add Jenkins user to sudo group
+      user:
+        name: jenkins
+        groups: sudo
+        append: yes
+
+    - name: Give Jenkins user passwordless sudo
       lineinfile:
         path: /etc/sudoers
-        line: 'jenkins ALL=(ALL) NOPASSWD: ALL'    
-    
-    - name: Install kubectl  
-      snap: 
-        name: kubectl
-        classic: true
-        state: present
+        line: 'jenkins ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
 
-    - name: Create kubectl alias for root user
+    - name: Install kubectl
+      get_url:
+        url: "https://storage.googleapis.com/kubernetes-release/release/{{ lookup('url', 'https://storage.googleapis.com/kubernetes-release/release/stable.txt', wantlist=False) }}/bin/linux/amd64/kubectl"
+        dest: /usr/local/bin/kubectl
+        mode: '0755'
+
+    - name: Set kubectl alias for the root user
       lineinfile:
-        dest: /root/.bashrc
+        path: /root/.bashrc
         line: 'alias k=kubectl'
         state: present
-        regexp: '^alias k='
-    
-
- 

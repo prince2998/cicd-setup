@@ -1,24 +1,69 @@
 ---
-- name: Install Nexus
-  hosts: nexus
-  become: true
-
+- name: Nexus Installation & configure
+- hosts: nexus
+  become: yes
+  vars:
+    nexus_version: "3.66.0-02"
+    nexus_user: nexus
+    nexus_group: nexus
+    nexus_home: /opt/nexus
+    nexus_data: /opt/sonatype-work
+    nexus_url: "https://download.sonatype.com/nexus/3/nexus-{{ nexus_version }}-unix.tar.gz"
   tasks:
-  - name: Install Java 8
-    apt:
-      name: openjdk-8-jdk
-      state: present
+    - name: Create Nexus User and Group
+      group:
+        name: "{{ nexus_group }}"
+        state: present
+      user:
+        name: "{{ nexus_user }}"
+        group: "{{ nexus_group }}"
+        system: yes
+        createhome: no
+        shell: /bin/false
 
-  - name: Download Nexus
-    get_url:
-      url: https://download.sonatype.com/nexus/3/nexus-3.53.0-01-unix.tar.gz
-      dest: /tmp/nexus-3.53.0-01-unix.tar.gz
+    - name: Create Directories for Nexus
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: "{{ nexus_user }}"
+        group: "{{ nexus_group }}"
+      with_items:
+        - "{{ nexus_home }}"
+        - "{{ nexus_data }}"
 
-  - name: Extract Nexus
-    unarchive:
-      src: /tmp/nexus-3.53.0-01-unix.tar.gz
-      dest: /home/ubuntu/
-      remote_src: yes
+    - name: Download Nexus
+      get_url:
+        url: "{{ nexus_url }}"
+        dest: "/tmp/nexus.tar.gz"
 
-  - name: Start Nexus
-    shell: /home/ubuntu/nexus-3.53.0-01/bin/nexus start
+    - name: Extract Nexus
+      unarchive:
+        src: "/tmp/nexus.tar.gz"
+        dest: "{{ nexus_home }}"
+        remote_src: yes
+        extra_opts: [--strip-components=1]
+        creates: "{{ nexus_home }}/bin/nexus"
+      notify: Start Nexus
+
+    - name: Set Nexus as a Service
+      template:
+        src: nexus.service.j2
+        dest: /etc/systemd/system/nexus.service
+      notify: Reload Systemd
+
+    - name: Start Nexus Service
+      systemd:
+        name: nexus
+        enabled: yes
+        state: started
+
+  handlers:
+    - name: Reload Systemd
+      systemd:
+        daemon_reload: yes
+
+    - name: Start Nexus
+      systemd:
+        name: nexus
+        state: started
+        enabled: yes
