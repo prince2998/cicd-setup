@@ -16,7 +16,15 @@
     user:
       name: prince
       password: "{{ encrypted_password }}"
-      shell: ./add_k8s_ip.sh
+  
+  - name: Run add_k8s_ip.sh
+    ansible.builtin.shell:
+      cmd: ""./add_k8s_ip.sh"
+    register: shell_output
+
+  - name: Print Output
+    debug:
+      msg: "{{ shell_output.stdout }}"
 
 ##### Play to setup and configure k8s control plane node #####
 - name: Setup k8s Control Plane (master) node
