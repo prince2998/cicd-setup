@@ -2,7 +2,7 @@
 ##### Play to add private IPs of k8s-master, k8s-node1, k8s-node2 to master.sh and nodes.sh scripts.
 - name: Add private IP of k8s instances to init scripts 
   hosts: localhost
-  become: yes
+  become: true
   vars:
     encrypted_password: !vault |
           $ANSIBLE_VAULT;1.1;AES256
@@ -12,13 +12,10 @@
           3262643337623263310a633138356636376436643234626666353638633436613535356466383034
           3338
   tasks:
-    - name: Set user password
-      user:
-        name: prince
-        password: "{{ encrypted_password }}"
-  
-    - name: Run add_k8s_ip.sh
-      become: true
+  - name: Set user password
+    user:
+      name: prince
+      password: "{{ encrypted_password }}"
       shell: ./add_k8s_ip.sh
 
 ##### Play to setup and configure k8s control plane node #####
