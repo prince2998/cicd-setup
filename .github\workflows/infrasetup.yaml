@@ -1,0 +1,15 @@
+name: Run Shell Script on Self-Hosted Runner
+
+on: [push]
+
+jobs:
+  run-shell-script:
+    runs-on: self-hosted # This specifies that the job should run on a self-hosted runner.
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3 # This action checks out your repository under $GITHUB_WORKSPACE, so your job can access it.
+
+    - name: Run a shell script
+      run: |
+        cd ../scripts
+        ./phase1.sh
