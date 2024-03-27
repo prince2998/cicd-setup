@@ -36,6 +36,7 @@
         name: jenkins 
         state: started
         enabled: yes
+    ignore_errors: true
     rescue:
     - name: Jenkins is already running
       debug:

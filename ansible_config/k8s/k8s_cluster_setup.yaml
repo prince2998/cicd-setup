@@ -9,7 +9,7 @@
   - name: Run add_k8s_ip.sh
     ansible.builtin.shell:
       chdir: "."
-      cmd: "bash ./add_k8s_ip.sh"
+      cmd: "bash add_k8s_ip.sh"
     register: shell_output
 
   - name: Print Output
@@ -27,7 +27,7 @@
       dest: /root/master.sh
       mode: '0755'
   - name: Configure Control Plane (master) node
-    shell: /root/master.sh
+    shell: bash /root/master.sh
     async: 600 # Run for up to 600 seconds
     poll: 10   # Check every 10 seconds
     register: master_output
@@ -120,7 +120,7 @@
       dest: /root/nodes.sh
       mode: '0755'
   - name: Configure Worker node
-    shell: /root/nodes.sh
+    shell: bash /root/nodes.sh
     async: 600 # Run for up to 600 seconds
     poll: 10   # Check every 10 seconds
     register: node1_output
@@ -151,7 +151,7 @@
       dest: /root/nodes.sh
       mode: '0755'
   - name: Configure Worker node
-    shell: /root/nodes.sh
+    shell: bash /root/nodes.sh
 
   - name: Copy kubernetes_join_command
     copy:
