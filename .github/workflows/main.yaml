@@ -5,6 +5,14 @@ on:
     branches:
       - main
   workflow_dispatch: 
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'production'
+      version:
+        description: 'Version number of the app'
+        required: true
 
 jobs:
   run-shell-script:
@@ -12,6 +20,25 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3 # This action checks out your repository under $GITHUB_WORKSPACE, so your job can access it.
+    
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.TF_VAR_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.TF_VAR_SECRET_KEY }}
+        aws-region: 'ap-south-1'
+
+    - name: Set up SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H jenkins >> ~/.ssh/known_hosts
+        ssh-keyscan -H sonar >> ~/.ssh/known_hosts
+        ssh-keyscan -H nexus >> ~/.ssh/known_hosts
+        ssh-keyscan -H k8s_master >> ~/.ssh/known_hosts
+        ssh-keyscan -H k8s_node1 >> ~/.ssh/known_hosts
+        ssh-keyscan -H k8s_node2 >> ~/.ssh/known_hosts
 
     - name: Run a shell script
       run: |
