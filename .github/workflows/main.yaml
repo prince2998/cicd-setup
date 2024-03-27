@@ -37,11 +37,10 @@ jobs:
     - name: Run a shell script
       run: |
         cd ~/cicd-setup/scripts
-        ./t_createall.sh
+        ./phase1.sh
         ssh-keyscan -H jenkins >> ~/.ssh/known_hosts
         ssh-keyscan -H sonar >> ~/.ssh/known_hosts
         ssh-keyscan -H nexus >> ~/.ssh/known_hosts
         ssh-keyscan -H k8s_master >> ~/.ssh/known_hosts
         ssh-keyscan -H k8s_node1 >> ~/.ssh/known_hosts
         ssh-keyscan -H k8s_node2 >> ~/.ssh/known_hosts
-        ./playall.sh
