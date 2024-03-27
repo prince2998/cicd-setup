@@ -5,7 +5,7 @@
 #Install Jenkins.
 #Ensure that the Jenkins service is started and enabled to start on boot. 
 - name: Add SSH key to known_hosts
-    shell: |
+    run: |
       ssh-keyscan jenkins >> ~/.ssh/known_hosts
       ssh ubuntu@jenkins
 

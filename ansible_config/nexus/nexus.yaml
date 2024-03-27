@@ -1,11 +1,13 @@
 ---
+- name: Add SSH key to known_hosts
+    run: |
+      ssh-keyscan nexus >> ~/.ssh/known_hosts
+      ssh ubuntu@nexus
+
 - name: Install Docker and Nexus
   hosts: nexus
   become: true
   tasks:
-  - name: Add SSH key to known_hosts
-    shell: |
-      ssh-keyscan nexus >> ~/.ssh/known_hosts
     delegate_to: localhost
   - name: Install required packages for Docker
     apt:
