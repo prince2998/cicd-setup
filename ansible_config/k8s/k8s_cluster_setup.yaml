@@ -9,7 +9,7 @@
   - name: Run add_k8s_ip.sh
     ansible.builtin.shell:
       chdir: "."
-      cmd: "./add_k8s_ip.sh"
+      cmd: "bash ./add_k8s_ip.sh"
     register: shell_output
 
   - name: Print Output
@@ -51,26 +51,6 @@
       mode: '0644'
     delegate_to: localhost
     run_once: true
-
-      #- name: Copy kubernetes_join_command.sh script to node1 server
-      #become: yes
-      #synchronize:
-      #src: kubernetes_join_command.sh
-      #dest: /
-      #mode: push
-      #remote_user: ubuntu
-      #private_key:  /home/ubuntu/.ssh/id_rsa
-      #delegate_to: k8s-node1
-
-      #- name: Copy kubernetes_join_command.sh script to node2 server
-      #become: yes
-      #synchronize:
-      #src: kubernetes_join_command.sh
-      #dest: /
-      #mode: push
-      #remote_user: ubuntu
-      #private_key:  /home/ubuntu/.ssh/id_rsa
-      #delegate_to: k8s-node2
   
   - name: Create kubectl alias
     lineinfile:
