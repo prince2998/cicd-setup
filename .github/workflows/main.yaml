@@ -1,6 +1,10 @@
 name: Run Shell Script on Self-Hosted Runner
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: 
 
 jobs:
   run-shell-script:
