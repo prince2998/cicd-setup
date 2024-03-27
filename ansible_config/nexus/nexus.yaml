@@ -36,12 +36,12 @@
       state: latest
       update_cache: yes
 
-  - name: Attempt to start container and handle errors
-    block:
-    - name: Start Nexus container
-      shell: docker run -d -p 8081:8081 --name=sonar sonatype/nexus3:latest
+  - name: Attempt to run 'sonar' container
+    command: docker run -d -p 8081:8081 --name=nexus sonatype/nexus3:latest
+    register: docker_run
+    failed_when: "'container name \"/nexus\" is already in use' not in docker_run.stderr"
+
+  - name: Start Nexus container
+    shell: docker run -d -p 8081:8081 --name=nexus sonatype/nexus3:latest
     ignore_errors: true
-    rescue:
-    - name: Nexus container is already running
-      debug:
-        msg: "The container Nexus is already running moving on."
+    when: docker_run.failed

@@ -36,12 +36,12 @@
       state: latest
       update_cache: yes
 
-  - name: Attempt to start container and handle errors
-    block:
-    - name: Start SonarQube container
-      shell: docker run -d -p 9000:9000 --name=sonar sonarqube:lts-community
+  - name: Attempt to run 'sonar' container
+    command: docker run -d -p 9000:9000 --name=sonar sonarqube:lts-community
+    register: docker_run
+    failed_when: "'container name \"/sonar\" is already in use' not in docker_run.stderr"
+
+  - name: Start SonarQube container
+    shell: docker run -d -p 9000:9000 --name=sonar sonarqube:lts-community
     ignore_errors: true
-    rescue:
-    - name: Sonaqube container is already running
-      debug:
-        msg: "The sonarqube container is already running moving on."
+    when: docker_run.failed
