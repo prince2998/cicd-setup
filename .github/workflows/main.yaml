@@ -11,5 +11,5 @@ jobs:
 
     - name: Run a shell script
       run: |
-        cd ~/../scripts
+        cd cicd-setup/scripts
         ./phase1.sh
