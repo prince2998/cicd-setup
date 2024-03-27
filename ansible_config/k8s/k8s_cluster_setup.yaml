@@ -1,5 +1,5 @@
 ---
-##### Play to add private IPs of k8s-master, k8s-node1, k8s-node2 to master.sh and nodes.sh scripts.
+##### Play to add private IPs of k8s_master, k8s_node1, k8s_node2 to master.sh and nodes.sh scripts.
 - name: Add private IP of k8s instances to init scripts 
   hosts: localhost
   connection: local
@@ -18,7 +18,7 @@
 
 ##### Play to setup and configure k8s control plane node #####
 - name: Setup k8s Control Plane (master) node
-  hosts: k8s-master
+  hosts: k8s_master
   become: true
   tasks:
   - name: Copy master.sh script to k8s control plane node
@@ -77,7 +77,7 @@
 
 ##### Play to configure kubectl for ubuntu user #####
 - name: Configure kubectl for ubuntu user
-  hosts: k8s-master
+  hosts: k8s_master
   become: true
   tasks:
   - name: Create .kube directory for ubuntu user
@@ -111,7 +111,7 @@
 
 ##### Play to setup and configure k8s worker node1 #####
 - name: Setup k8s worker node1
-  hosts: k8s-node1
+  hosts: k8s_node1
   become: true
   tasks:
   - name: Copy nodes.sh script to k8s worker node
@@ -142,7 +142,7 @@
 
 ##### Play to setup and configure k8s worker node2 #####
 - name: Setup k8s worker node2
-  hosts: k8s-node2
+  hosts: k8s_node2
   become: true
   tasks:
   - name: Copy nodes.sh script to k8s worker node
@@ -164,18 +164,18 @@
 
 #### Plays to copy kubeconfig to jenkins server for jenkins user #### Required for Stage V & VI : Deploying application on k8s cluster #####
 
-##### PLAY 1 : COPY kubeconfig from k8s-master node to localhost #####
-- name: Copy the kubeconfig from k8s-master 
-  hosts: k8s-master
+##### PLAY 1 : COPY kubeconfig from k8s_master node to localhost #####
+- name: Copy the kubeconfig from k8s_master 
+  hosts: k8s_master
   become: true
   tasks:
-  - name: Fetch the file from the k8s-master to localhost
+  - name: Fetch the file from the k8s_master to localhost
     run_once: yes
     fetch:
       src: /etc/kubernetes/admin.conf
       dest: "./{{ inventory_hostname }}/admin.conf"
       flat: yes
-    delegate_to: k8s-master
+    delegate_to: k8s_master
   - name: Copy the kubeconfig to the worker nodes
     copy:
      src: "./{{ inventory_hostname }}/admin.conf"
@@ -183,7 +183,7 @@
      owner: ubuntu
      group: ubuntu
      mode: '0644'
-    when: inventory_hostname != 'k8s-master'
+    when: inventory_hostname != 'k8s_master'
 
 ##### PLAY 2 : INSTALL KUBECTL, CREATE .kube direcoty in $HOME of jenkins user, copy kubeconfig from localhost buffer to Jenkins server and sets the permission to 0600 and ownership to jenkins:jenkins#####
 - name: Jenkins User kubectl Setup
@@ -204,7 +204,7 @@
       mode: '0755'
   - name: Copy the file from localhost to jenkins
     copy:
-      src: "k8s-master/admin.conf"
+      src: "k8s_master/admin.conf"
       dest: "/var/lib/jenkins/.kube/config"
       mode: "0600"
       owner: jenkins

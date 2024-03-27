@@ -2,7 +2,7 @@
 #!/bin/bash
 
 # Define an associative array where keys are hostnames and values are IP addresses
-declare -A HOSTS=( ["k8s_master"]="172.31.41.138" ["k8s_node1"]="knode1-ip" ["k8s_node2"]="knode2-ip" )
+declare -A HOSTS=( ["k8s_master"]="172.31.32.42" ["k8s_node1"]="172.31.45.176" ["k8s_node2"]="172.31.35.18" )
 
 # Location of the hosts file
 HOSTS_FILE="/etc/hosts"
