@@ -19,7 +19,7 @@ do
         sudo sed -i "/ $HOSTNAME/d" "$HOSTS_FILE"
     fi
         echo "Adding entry $IP_ADDRESS $HOSTNAME to $HOSTS_FILE"
-        echo -e "\n$IP_ADDRESS $HOSTNAME\n" | sudo tee -a "$HOSTS_FILE" > /dev/null
+        echo -e "\n$IP_ADDRESS $HOSTNAME" | sudo tee -a "$HOSTS_FILE" > /dev/null
 done
 
 swapoff -a
