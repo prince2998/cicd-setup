@@ -13,8 +13,6 @@
     apt: 
       name: openjdk-17-jre 
       state: present
-    async: 600 # Run for up to 600 seconds
-    poll: 10   # Check every 10 seconds
 
   - name: Add Jenkins Repository Key
     apt_key: 
