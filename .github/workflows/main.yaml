@@ -33,14 +33,15 @@ jobs:
         mkdir -p ~/.ssh
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
+
+    - name: Run a shell script
+      run: |
+        cd ~/cicd-setup/scripts
+        ./t_createall.sh
         ssh-keyscan -H jenkins >> ~/.ssh/known_hosts
         ssh-keyscan -H sonar >> ~/.ssh/known_hosts
         ssh-keyscan -H nexus >> ~/.ssh/known_hosts
         ssh-keyscan -H k8s_master >> ~/.ssh/known_hosts
         ssh-keyscan -H k8s_node1 >> ~/.ssh/known_hosts
         ssh-keyscan -H k8s_node2 >> ~/.ssh/known_hosts
-
-    - name: Run a shell script
-      run: |
-        cd ~/cicd-setup/scripts
-        ./phase1.sh
+        ./playall.sh
