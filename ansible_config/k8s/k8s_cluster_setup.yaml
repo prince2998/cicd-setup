@@ -16,16 +16,15 @@
     debug:
       msg: "{{ shell_output.stdout }}"
 
-- name: Add SSH key to known_hosts
-    run: |
-      ssh-keyscan k8s_master >> ~/.ssh/known_hosts
-      ssh ubuntu@k8s_master
-
 ##### Play to setup and configure k8s control plane node #####
 - name: Setup k8s Control Plane (master) node
   hosts: k8s_master
   become: true
   tasks:
+  - name: Add SSH key to known_hosts
+    shell: |
+      ssh-keyscan k8s_master >> ~/.ssh/known_hosts
+    delegate_to: localhost
   - name: Copy master.sh script to k8s control plane node
     copy:
       src: master.sh
@@ -114,16 +113,16 @@
     args:
       executable: /bin/bash
 
-- name: Add SSH key to known_hosts
-    run: |
-      ssh-keyscan k8s_node1 >> ~/.ssh/known_hosts
-      ssh ubuntu@k8s_node1
-
 ##### Play to setup and configure k8s worker node1 #####
 - name: Setup k8s worker node1
   hosts: k8s_node1
   become: true
   tasks:
+  - name: Add SSH key to known_hosts
+    shell: |
+      ssh-keyscan k8s_node1 >> ~/.ssh/known_hosts
+    delegate_to: localhost
+
   - name: Copy nodes.sh script to k8s worker node
     copy:
       src: nodes.sh
@@ -150,16 +149,16 @@
     shell: /root/kubernetes_join_command.sh
     when: kubernetes_join_command is defined
 
-- name: Add SSH key to known_hosts
-    run: |
-      ssh-keyscan k8s_node2 >> ~/.ssh/known_hosts
-      ssh ubuntu@k8s_node2
-
 ##### Play to setup and configure k8s worker node2 #####
 - name: Setup k8s worker node2
   hosts: k8s_node2
   become: true
   tasks:
+  - name: Add SSH key to known_hosts
+    shell: |
+      ssh-keyscan k8s_node2 >> ~/.ssh/known_hosts
+    delegate_to: localhost
+
   - name: Copy nodes.sh script to k8s worker node
     copy:
       src: nodes.sh
