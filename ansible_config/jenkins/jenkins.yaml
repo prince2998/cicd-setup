@@ -43,48 +43,41 @@
 #Verify the installation of the datree.io Helm plugin.
 #Confirm the versions of Helm and the datree.io Helm plugin and display them.
 
-- name: Install and confirm Helm and datree.io Helm plugin
+- name: Install Helm and Datree plugin on Jenkins server
   hosts: jenkins
-  become: true
+  become: yes
   tasks:
-    - name: Download and install the latest Helm release
+    - name: Download Helm installation script
       get_url:
-        url: "https://get.helm.sh/helm-v3.14.3-linux-amd64.tar.gz"
-        dest: "/tmp/helm.tar.gz"
-        validate_certs: no
+        url: "https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3"
+        dest: "/tmp/get_helm.sh"
+        mode: '0755'
 
-    - name: Extract Helm
-      unarchive:
-        src: "/tmp/helm.tar.gz"
-        dest: "/usr/local/bin"
-        remote_src: yes
-        extra_opts: ["--strip-components=1"]
+    - name: Install Helm
+      command: "/tmp/get_helm.sh"
 
-    - name: Add Helm to PATH
-      lineinfile:
-        path: "/etc/environment"
-        line: 'PATH="$PATH:/usr/local/bin/helm"'
-        state: present
+    - name: Install Datree plugin for Helm
+      command: "helm plugin uninstall datree"
 
-    - name: Install datree.io Helm plugin
-      command: "helm plugin install https://github.com/datreeio/helm-datree"
+        #- name: Install Datree plugin for Helm
+        #command: "helm plugin install https://github.com/datreeio/helm-datree"
 
-    - name: Verify datree.io Helm plugin installation
-      command: "helm plugin list"
+        #- name: Update Plugin plugin is installed but outdated, update it to the latest version
+        #command: "helm plugin update datree"
 
-    - name: Confirm Helm version
+    - name: Verify Helm installation
       command: "helm version"
       register: helm_version_output
 
-    - name: Confirm datree.io Helm plugin version
-      command: "helm datree version"
-      register: datree_plugin_version_output
+        #- name: Verify Datree plugin installation
+        #command: "helm datree version"
+        #register: datree_plugin_version_output
 
     - name: Display Helm and datree.io Helm plugin versions
       debug:
         msg:
           - "Helm version: {{ helm_version_output.stdout }}"
-          - "datree.io Helm plugin version: {{ datree_plugin_version_output.stdout }}"
+            #- "Datree.io Helm plugin version: {{ datree_plugin_version_output.stdout }}"
 
 ####### ANSIBLE PLAY to INSTALL DOCKER, ADD jenkins user to docker and sudo groups, give access to sudo commands to jenkins user, INSTALL KUBECTL and CONFIGURE k=kubectl alias for the root user. #########
 #Install the necessary packages for Docker.

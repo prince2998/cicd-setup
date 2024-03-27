@@ -1,5 +1,27 @@
 #These commands are part of the initial setup for a Kubernetes cluster, preparing the system to function as either a master node or a worker node without using swap memory.
-#printf "\nkmaster-ip k8s-master\nknode1-ip k8s-node1\nknode2-ip k8s-node2\n\n" >> /etc/hosts
+#!/bin/bash
+
+# Define an associative array where keys are hostnames and values are IP addresses
+declare -A HOSTS=( ["k8s_master"]="172.31.41.138" ["k8s_node1"]="knode1-ip" ["k8s_node2"]="knode2-ip" )
+
+# Location of the hosts file
+HOSTS_FILE="/etc/hosts"
+
+# Loop through the associative array
+for HOSTNAME in "${!HOSTS[@]}"
+do
+    IP_ADDRESS=${HOSTS[$HOSTNAME]}
+
+    # Check if the IP and hostname combination already exists in the /etc/hosts file
+    if grep -q "$IP_ADDRESS $HOSTNAME" "$HOSTS_FILE"; then
+        echo "The entry $IP_ADDRESS $HOSTNAME already exists in $HOSTS_FILE removing old entry & addng new entry."
+        # Use sed to remove the line containing the hostname
+        sudo sed -i "/ $HOSTNAME/d" "$HOSTS_FILE"
+    fi
+        echo "Adding entry $IP_ADDRESS $HOSTNAME to $HOSTS_FILE"
+        echo -e "\n$IP_ADDRESS $HOSTNAME\n" | sudo tee -a "$HOSTS_FILE" > /dev/null
+done
+
 swapoff -a
 sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 

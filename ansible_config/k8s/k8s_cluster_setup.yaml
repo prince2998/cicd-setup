@@ -2,24 +2,14 @@
 ##### Play to add private IPs of k8s-master, k8s-node1, k8s-node2 to master.sh and nodes.sh scripts.
 - name: Add private IP of k8s instances to init scripts 
   hosts: localhost
+  connection: local
   become: true
-  vars:
-    encrypted_password: !vault |
-          $ANSIBLE_VAULT;1.1;AES256
-          63386165656563353836383563303137383237363837646439343630386236303563303363653463
-          6534323138343864656132363733393165393936626464380a386464386330336637356430356339
-          35363736306266313733346361626366373136303464663037306530353561663932316137366366
-          3262643337623263310a633138356636376436643234626666353638633436613535356466383034
-          3338
+  gather_facts: no
   tasks:
-  - name: Set user password
-    user:
-      name: prince
-      password: "{{ encrypted_password }}"
-  
   - name: Run add_k8s_ip.sh
     ansible.builtin.shell:
-      cmd: ""./add_k8s_ip.sh"
+      chdir: "."
+      cmd: "./add_k8s_ip.sh"
     register: shell_output
 
   - name: Print Output
@@ -38,28 +28,64 @@
       mode: '0755'
   - name: Configure Control Plane (master) node
     shell: /root/master.sh
+    async: 600 # Run for up to 600 seconds
+    poll: 10   # Check every 10 seconds
+    register: master_output
+
+  - name: Print Output
+    debug:
+      msg: "{{ master_output.stdout }}"
+    when: master_output is defined
     notify: Hold kubelet, kubeadm, and kubectl at current version
+
   - name: Get kubeadm join command
     shell: kubeadm token create --print-join-command
     register: kubernetes_join_command
-    changed_when: false
-    delegate_to: localhost
-    run_once: true
+  
   - name: Create join_cluster to local file
     become: yes
     copy: 
       content: "{{ kubernetes_join_command.stdout }}" 
-      dest: ~/kubernetes_join_command 
-      owner: ubuntu
+      dest: kubernetes_join_command.sh 
+      owner: root
       mode: '0644'
     delegate_to: localhost
     run_once: true
+
+      #- name: Copy kubernetes_join_command.sh script to node1 server
+      #become: yes
+      #synchronize:
+      #src: kubernetes_join_command.sh
+      #dest: /
+      #mode: push
+      #remote_user: ubuntu
+      #private_key:  /home/ubuntu/.ssh/id_rsa
+      #delegate_to: k8s-node1
+
+      #- name: Copy kubernetes_join_command.sh script to node2 server
+      #become: yes
+      #synchronize:
+      #src: kubernetes_join_command.sh
+      #dest: /
+      #mode: push
+      #remote_user: ubuntu
+      #private_key:  /home/ubuntu/.ssh/id_rsa
+      #delegate_to: k8s-node2
+  
   - name: Create kubectl alias
     lineinfile:
       dest: /root/.bashrc
       line: 'alias k=kubectl'
       state: present
-- handlers:
+
+  - name: Check on async task
+    async_status:
+      jid: "{{ master_output.ansible_job_id }}"
+    register: job_result
+    until: job_result.finished
+    retries: 60 
+
+  handlers:
   - name: Hold kubelet, kubeadm, and kubectl at current version
     apt:
       name: "{{ item }}"
@@ -97,14 +123,14 @@
       create: yes
     notify:
       - Reload bashrc
-- handlers: 
+  handlers: 
   - name: Reload bashrc
     shell: 'source /home/ubuntu/.bashrc'
     args:
       executable: /bin/bash
 
 ##### Play to setup and configure k8s worker node1 #####
-- name: Setup k8s worker node
+- name: Setup k8s worker node1
   hosts: k8s-node1
   become: true
   tasks:
@@ -115,17 +141,27 @@
       mode: '0755'
   - name: Configure Worker node
     shell: /root/nodes.sh
+    async: 600 # Run for up to 600 seconds
+    poll: 10   # Check every 10 seconds
+    register: node1_output
+
+  - name: Print Output
+    debug:
+      msg: "{{ node1_output.stdout }}"
+    when: node1_output is defined
+    notify: Hold kubelet, kubeadm, and kubectl at current version
+
   - name: Copy kubernetes_join_command
     copy:
-      src: ~/kubernetes_join_command
-      dest: /root/kubernetes_join_command
+      src: kubernetes_join_command.sh
+      dest: /root/kubernetes_join_command.sh
       mode: '0755'
   - name: Join k8s cluster  
-    shell: /root/kubernetes_join_command
+    shell: /root/kubernetes_join_command.sh
     when: kubernetes_join_command is defined
 
 ##### Play to setup and configure k8s worker node2 #####
-- name: Setup k8s worker node
+- name: Setup k8s worker node2
   hosts: k8s-node2
   become: true
   tasks:
@@ -136,13 +172,14 @@
       mode: '0755'
   - name: Configure Worker node
     shell: /root/nodes.sh
+
   - name: Copy kubernetes_join_command
     copy:
-      src: ~/kubernetes_join_command
-      dest: /root/kubernetes_join_command
+      src: kubernetes_join_command.sh
+      dest: /root/kubernetes_join_command.sh
       mode: '0755'
   - name: Join k8s cluster  
-    shell: /root/kubernetes_join_command
+    shell: /root/kubernetes_join_command.sh
     when: kubernetes_join_command is defined
 
 #### Plays to copy kubeconfig to jenkins server for jenkins user #### Required for Stage V & VI : Deploying application on k8s cluster #####
@@ -174,10 +211,10 @@
   become: true
   tasks:
   - name: Install kubectl
-    snap:
-      name: kubectl
+    community.general.snap:
+      name: kubectl 
+      classic: yes
       state: present
-      update_cache: yes
   - name: Create directory and set ownership of .kube directory for jenkins user
     file:
       path: /var/lib/jenkins/.kube
@@ -187,7 +224,7 @@
       mode: '0755'
   - name: Copy the file from localhost to jenkins
     copy:
-      src: "./{{ inventory_hostname }}/admin.conf"
+      src: "k8s-master/admin.conf"
       dest: "/var/lib/jenkins/.kube/config"
       mode: "0600"
       owner: jenkins

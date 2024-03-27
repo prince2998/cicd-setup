@@ -1,4 +1,4 @@
-aws_instance_name = "k8s-node2"
+aws_instance_name = "k8s_node2"
 aws_region        = "ap-south-1"
 ports             = [22,80,8080,443,25,465,6643]
 instance_type     = "t2.medium"
