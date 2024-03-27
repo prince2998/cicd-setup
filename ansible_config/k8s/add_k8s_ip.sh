@@ -23,11 +23,11 @@ for HOST in "${!PLACEHOLDERS[@]}"; do
         for file in master.sh nodes.sh; do
             if grep -q "$placeholder" "$file"; then
                 echo "Replacing placeholder in $file"
-                sed -i "s/$placeholder/$new_ip/g" "$file"
+                sed -i 's/$placeholder/$new_ip/g' "$file"
             elif grep -qEo '([0-9]{1,3}[\.]){3}[0-9]{1,3}' "$file"; then
                 old_ip=$(grep -Eo '([0-9]{1,3}[\.]){3}[0-9]{1,3}' "$file")
                 echo "Replacing old IP in $file"
-                sed -i "s/$old_ip/$new_ip/g" "$file"
+                sed -i 's/$old_ip/$new_ip/g' "$file"
             fi
         done
     else

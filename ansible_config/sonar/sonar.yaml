@@ -36,5 +36,11 @@
       state: latest
       update_cache: yes
 
-  - name: Start SonarQube container
-    shell: docker run -d -p 9000:9000 --name=sonar sonarqube:lts-community
+  - name: Attempt to start container and handle errors
+    block:
+    - name: Start SonarQube container
+      shell: docker run -d -p 9000:9000 --name=sonar sonarqube:lts-community
+    rescue:
+    - name: Sonaqube container is already running
+      debug:
+        msg: "The sonarqube container is already running moving on."

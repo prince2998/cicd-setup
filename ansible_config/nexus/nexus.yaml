@@ -36,5 +36,11 @@
       state: latest
       update_cache: yes
 
-  - name: Start Nexus container
-    shell: docker run -d -p 8081:8081 --name=sonar sonatype/nexus3:latest
+  - name: Attempt to start container and handle errors
+    block:
+    - name: Start Nexus container
+      shell: docker run -d -p 8081:8081 --name=sonar sonatype/nexus3:latest
+    rescue:
+    - name: Nexus container is already running
+      debug:
+        msg: "The container Nexus is already running moving on."

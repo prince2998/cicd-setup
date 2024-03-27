@@ -29,11 +29,17 @@
       name: jenkins 
       update_cache: yes
 
-  - name: Ensure Jenkins is running
-    service: 
-      name: jenkins 
-      state: started
-      enabled: yes
+  - name: Attempt to start container and handle errors
+    block:
+    - name: Ensure Jenkins is running
+      service: 
+        name: jenkins 
+        state: started
+        enabled: yes
+    rescue:
+    - name: Jenkins is already running
+      debug:
+        msg: "The Jenkins is already running moving on."
 
 ####### ANSIBLE PLAY TO INSTALL HELM ######### 
 #Download the specified version of Helm, which is the latest release as of now.
