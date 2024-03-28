@@ -1,1 +1,1 @@
-kubeadm join 172.31.38.74:6443 --token cgrcdl.gtbtl1iz02dyky61 --discovery-token-ca-cert-hash sha256:6f62914b0d9de8669fd343f4a66c00378363a623ba4999320ab2165a29eb3fc1 
+kubeadm join 172.31.42.153:6443 --token 7hnvhw.jh6mi439wg6gai2a --discovery-token-ca-cert-hash sha256:b78fe1a267c9ea96fd417f4f209a07722bddc88f92530cb230d9840c9d99885f 

@@ -1,0 +1,90 @@
+---
+- name: Configure SSH for automatic fingerprint acceptance
+  hosts: jenkins
+  gather_facts: no  # Disable gathering facts for efficiency
+  become: yes
+  tasks:
+    - name: Disable Strict Host Key Checking
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/ssh_config  # Path to SSH client configuration file
+        line: "StrictHostKeyChecking no"
+        state: present
+    - name: Restart SSH service
+      ansible.builtin.service:
+        name: ssh
+        state: restarted
+
+- name: Configure SSH for automatic fingerprint acceptance
+  hosts: sonar
+  gather_facts: no  # Disable gathering facts for efficiency
+  become: yes
+  tasks:
+    - name: Disable Strict Host Key Checking
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/ssh_config  # Path to SSH client configuration file
+        line: "StrictHostKeyChecking no"
+        state: present
+    - name: Restart SSH service
+      ansible.builtin.service:
+        name: ssh
+        state: restarted
+
+- name: Configure SSH for automatic fingerprint acceptance
+  hosts: nexus
+  gather_facts: no  # Disable gathering facts for efficiency
+  become: yes
+  tasks:
+    - name: Disable Strict Host Key Checking
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/ssh_config  # Path to SSH client configuration file
+        line: "StrictHostKeyChecking no"
+        state: present
+    - name: Restart SSH service
+      ansible.builtin.service:
+        name: ssh
+        state: restarted
+
+- name: Configure SSH for automatic fingerprint acceptance
+  hosts: k8s_master
+  gather_facts: no  # Disable gathering facts for efficiency
+  become: yes
+  tasks:
+    - name: Disable Strict Host Key Checking
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/ssh_config  # Path to SSH client configuration file
+        line: "StrictHostKeyChecking no"
+        state: present
+    - name: Restart SSH service
+      ansible.builtin.service:
+        name: ssh
+        state: restarted
+
+- name: Configure SSH for automatic fingerprint acceptance
+  hosts: k8s_node1
+  gather_facts: no  # Disable gathering facts for efficiency
+  become: yes
+  tasks:
+    - name: Disable Strict Host Key Checking
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/ssh_config  # Path to SSH client configuration file
+        line: "StrictHostKeyChecking no"
+        state: present
+    - name: Restart SSH service
+      ansible.builtin.service:
+        name: ssh
+        state: restarted
+
+- name: Configure SSH for automatic fingerprint acceptance
+  hosts: k8s_node2
+  gather_facts: no  # Disable gathering facts for efficiency
+  become: yes
+  tasks:
+    - name: Disable Strict Host Key Checking
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/ssh_config  # Path to SSH client configuration file
+        line: "StrictHostKeyChecking no"
+        state: present
+    - name: Restart SSH service
+      ansible.builtin.service:
+        name: ssh
+        state: restarted
