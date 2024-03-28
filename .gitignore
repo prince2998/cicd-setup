@@ -30,7 +30,7 @@ override.tf.json
 ### sshkeys
 *.pub
 id_rsa*
-join_cluster.sh
+kubernetes_join_command.sh
 .lock
-
+admin.conf
 buffer*
