@@ -8,11 +8,6 @@
   hosts: jenkins
   become: true
   tasks: 
-  - name: Add SSH key to known_hosts
-    shell: |
-      ssh-keyscan jenkins >> ~/.ssh/known_hosts
-    delegate_to: localhost
- 
   - name: Install Java
     apt: 
       name: openjdk-17-jre 

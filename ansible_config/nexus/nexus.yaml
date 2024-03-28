@@ -3,11 +3,6 @@
   hosts: nexus
   become: true
   tasks:
-  - name: Add SSH key to known_hosts
-    shell: |
-      ssh-keyscan nexus >> ~/.ssh/known_hosts
-    delegate_to: localhost
-    
   - name: Install required packages for Docker
     apt:
       name:
