@@ -1,4 +1,4 @@
-name: Run Shell Script on Self-Hosted Runner
+name: Create Infrastructre & Configuration
 
 on:
   push:
