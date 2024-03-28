@@ -11,6 +11,9 @@ node2_public_ip=`terraform -chdir="../terraform_config/node2" output | grep publ
 #### Generate ansible inventory file
 ./generate_ansible_inventory.sh
 ###
+echo -e "\n\033[1;32mConfiguring Jenkins server using the Ansible playbook disablestricthost.yaml...\033[0m\n"
+ansible-playbook -vvv -i ../ansible_config/inventory ../ansible_config/disablestricthost.yaml --timeout 30
+
 echo -e "\n\033[1;32mConfiguring Jenkins server using the Ansible playbook jenkins.yaml...\033[0m\n"
 ansible-playbook -vvv -i ../ansible_config/inventory ../ansible_config/jenkins/jenkins.yaml --timeout 30
 echo -e "\n\033[1;32mConfiguration completed, Jenkins running at \033[1;34mhttp://$jenkins_public_ip:8080\033[0m\n"
