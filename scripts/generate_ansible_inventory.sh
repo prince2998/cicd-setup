@@ -27,4 +27,13 @@ sed -i "s/^k8s_master.*ansible_host=.*/k8s_master ansible_host=${master_public_i
 sed -i "s/^k8s_node1.*ansible_host=.*/k8s_node1 ansible_host=${node1_public_ip} ansible_user=ubuntu ansible_connection=ssh/" ../ansible_config/inventory
 sed -i "s/^k8s_node2.*ansible_host=.*/k8s_node2 ansible_host=${node2_public_ip} ansible_user=ubuntu ansible_connection=ssh/" ../ansible_config/inventory
 
+echo -e "Add Host to Known Hosts......\n"
+
+ssh-keyscan -H ${jenkins_public_ip} >> ~/.ssh/known_hosts
+ssh-keyscan -H ${sonar_public_ip} >> ~/.ssh/known_hosts
+ssh-keyscan -H ${nexus_public_ip} >> ~/.ssh/known_hosts
+ssh-keyscan -H ${master_public_ip} >> ~/.ssh/known_hosts
+ssh-keyscan -H ${node1_public_ip} >> ~/.ssh/known_hosts
+ssh-keyscan -H ${node2_public_ip} >> ~/.ssh/known_hosts
+
 echo -e "Done!!!\n"
