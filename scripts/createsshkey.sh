@@ -12,19 +12,19 @@ if [ -f ~/.ssh/$KEY_NAME ]; then
 # Generate a new SSH key
 fi
 echo "Generating a new SSH key $KEY_NAME..."
-ssh-keygen -t ed25519 -f ~/.ssh/$KEY_NAME
+ssh-keygen -t ed25519 -N "" -f ~/.ssh/$KEY_NAME
 # Add the public key to authorized_keys on remote servers
-cp ~/.ssh/$KEY_NAME.pub ../terraform_config/jenkins
-cp ~/.ssh/$KEY_NAME.pub ../terraform_config/sonar
-cp ~/.ssh/$KEY_NAME.pub ../terraform_config/nexus
-cp ~/.ssh/$KEY_NAME.pub ../terraform_config/master
-cp ~/.ssh/$KEY_NAME.pub ../terraform_config/node1
-cp ~/.ssh/$KEY_NAME.pub ../terraform_config/node2
-cd ../terraform_config/jenkins ; rm publickey.pub ; mv $KEY_NAME.pub publickey.pub ; cd ../../scripts
-cd ../terraform_config/sonar ; rm publickey.pub ; mv $KEY_NAME.pub publickey.pub ; cd ../../scripts
-cd ../terraform_config/nexus ; rm publickey.pub ; mv $KEY_NAME.pub publickey.pub ; cd ../../scripts
-cd ../terraform_config/master ; rm publickey.pub ; mv $KEY_NAME.pub publickey.pub ; cd ../../scripts
-cd ../terraform_config/node1 ; rm publickey.pub ; mv $KEY_NAME.pub publickey.pub ; cd ../../scripts
-cd ../terraform_config/node2 ; rm publickey.pub ; mv $KEY_NAME.pub publickey.pub ; cd ../../scripts
+cp ~/.ssh/ssh_key.pub ../terraform_config/jenkins
+cp ~/.ssh/ssh_key.pub ../terraform_config/sonar
+cp ~/.ssh/ssh_key.pub ../terraform_config/nexus
+cp ~/.ssh/ssh_key.pub ../terraform_config/master
+cp ~/.ssh/ssh_key.pub ../terraform_config/node1
+cp ~/.ssh/ssh_key.pub ../terraform_config/node2
+cd ../terraform_config/jenkins ; rm publickey.pub ; mv ssh_key.pub publickey.pub ; cd ../../scripts
+cd ../terraform_config/sonar ; rm publickey.pub ; mv ssh_key.pub publickey.pub ; cd ../../scripts
+cd ../terraform_config/nexus ; rm publickey.pub ; mv ssh_key.pub publickey.pub ; cd ../../scripts
+cd ../terraform_config/master ; rm publickey.pub ; mv ssh_key.pub publickey.pub ; cd ../../scripts
+cd ../terraform_config/node1 ; rm publickey.pub ; mv ssh_key.pub publickey.pub ; cd ../../scripts
+cd ../terraform_config/node2 ; rm publickey.pub ; mv ssh_key.pub publickey.pub ; cd ../../scripts
 
 echo -e "Add the public key to authorized_keys on your terraform all directories.\n"
