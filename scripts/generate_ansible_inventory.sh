@@ -77,5 +77,4 @@ echo -e "\nAdding Node2 Ip to Known Hosts......"
 if [ -n "$node2_public_ip" ]; then
     ssh-keyscan -H "$node2_public_ip" >> ~/.ssh/known_hosts
 fi
-
 echo -e "Done!!!\n"
