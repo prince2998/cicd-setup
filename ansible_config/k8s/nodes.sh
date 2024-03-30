@@ -26,10 +26,10 @@ swapoff -a
 sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 
 # Install containerd
-VERSION="1.7.14"
-wget https://github.com/containerd/containerd/releases/download/$VERSION/containerd-$VERSION-linux-amd64.tar.gz
-sudo tar Czxvf /usr/local containerd-$VERSION-linux-amd64.tar.gz
-sudo rm -f containerd-$VERSION-linux-amd64.tar.gz
+VERSION1="1.7.14"
+wget https://github.com/containerd/containerd/releases/download/$VERSION1/containerd-$VERSION1-linux-amd64.tar.gz
+sudo tar Czxvf /usr/local containerd-$VERSION1-linux-amd64.tar.gz
+sudo rm -f containerd-$VERSION1-linux-amd64.tar.gz
 
 # Download and set up the systemd service file
 wget https://raw.githubusercontent.com/containerd/containerd/main/containerd.service
@@ -59,17 +59,17 @@ sudo chmod +x /usr/local/sbin/runc
 runc --version
 
 #Download the CNI plugins package
-VERSION="1.4.1"
-wget wget https://github.com/containernetworking/plugins/releases/download/$VERSION/cni-plugins-linux-amd64-$VERSION.tgz
+VERSION2="1.4.1"
+wget wget https://github.com/containernetworking/plugins/releases/download/$VERSION2/cni-plugins-linux-amd64-$VERSION2.tgz
 sudo mkdir -p /opt/cni/bin
-sudo tar -C /opt/cni/bin -xzf cni-plugins-linux-amd64-$VERSION.tgz
-sudo rm -f cni-plugins-linux-amd64-$VERSION.tgz
+sudo tar -C /opt/cni/bin -xzf cni-plugins-linux-amd64-$VERSION2.tgz
+sudo rm -f cni-plugins-linux-amd64-$VERSION2.tgz
 
 #Download the crictl binary
-VERSION="v1.29.0"
-wget https://github.com/kubernetes-sigs/cri-tools/releases/download/$VERSION/crictl-$VERSION-linux-amd64.tar.gz
-sudo tar zxvf crictl-$VERSION-linux-amd64.tar.gz -C /usr/local/bin
-sudo rm -f crictl-$VERSION-linux-amd64.tar.gz
+VERSION3="v1.29.0"
+wget https://github.com/kubernetes-sigs/cri-tools/releases/download/$VERSION3/crictl-$VERSION3-linux-amd64.tar.gz
+sudo tar zxvf crictl-$VERSION3-linux-amd64.tar.gz -C /usr/local/bin
+sudo rm -f crictl-$VERSION3-linux-amd64.tar.gz
 sudo chmod +x /usr/local/bin/crictl
 
 #Create a configuration file at /etc/crictl.yaml with the necessary settings for your container runtime. Here’s an example configuration for containerd
