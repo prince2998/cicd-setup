@@ -1,9 +1,6 @@
 name: Delete Infrastructre & Configuration
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch: 
     inputs:
       environment:
