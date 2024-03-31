@@ -1,4 +1,4 @@
-name: Create Infrastructre & Configuration
+name: Main YML
 
 on:
   workflow_dispatch: 
