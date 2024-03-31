@@ -5,11 +5,11 @@ on:
     inputs:
       environment:
         description: 'Environment to deploy to'
-        required: true
+        required: false
         default: 'production'
       version:
         description: 'Version number of the app'
-        required: true
+        required: false
 
 jobs:
   run-shell-script:
