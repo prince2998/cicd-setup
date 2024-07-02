@@ -2,6 +2,7 @@
 - name: Install Docker and SonarQube
   hosts: sonar
   become: true
+<<<<<<< HEAD
 
   tasks:
   - name: Install required packages
@@ -15,15 +16,35 @@
       state: present
 
   - name: Add Docker GPG key
+=======
+  tasks:
+  - name: Install required packages for Docker
+    apt:
+      name:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - gnupg-agent
+        - software-properties-common
+      state: present
+      update_cache: yes
+
+  - name: Add Docker’s official GPG key
+>>>>>>> d51ee086c26798c306043411f6ff9bdc717945c6
     apt_key:
       url: https://download.docker.com/linux/ubuntu/gpg
       state: present
 
+<<<<<<< HEAD
   - name: Add Docker repository
+=======
+  - name: Set up the stable repository
+>>>>>>> d51ee086c26798c306043411f6ff9bdc717945c6
     apt_repository:
       repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
       state: present
 
+<<<<<<< HEAD
   - name: Install Docker
     apt:
       name:
@@ -35,3 +56,25 @@
   - name: Start SonarQube container
     shell: docker run -d -p 9000:9000 --name=sonar sonarqube:lts
 
+=======
+  - name: Install Docker CE
+    apt:
+      name: 
+        - docker-ce 
+        - docker-ce-cli 
+        - containerd.io  
+        - docker-buildx-plugin  
+        - docker-compose-plugin
+      state: latest
+      update_cache: yes
+
+  - name: Attempt to run 'sonar' container
+    command: docker run -d -p 9000:9000 --name=sonar sonarqube:lts-community
+    register: docker_run
+    failed_when: "'container name \"/sonar\" is already in use' not in docker_run.stderr"
+
+  - name: Start SonarQube container
+    shell: docker run -d -p 9000:9000 --name=sonar sonarqube:lts-community
+    ignore_errors: true
+    #when: docker_run.failed
+>>>>>>> d51ee086c26798c306043411f6ff9bdc717945c6

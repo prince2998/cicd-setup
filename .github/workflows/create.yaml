@@ -1,0 +1,31 @@
+name: Create Infrastructre & Configuration
+
+on:
+  workflow_dispatch: 
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'production'
+      version:
+        description: 'Version number of the app'
+        required: true
+
+jobs:
+  run-shell-script:
+    runs-on: self-hosted # This specifies that the job should run on a self-hosted runner.
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3 # This action checks out your repository under $GITHUB_WORKSPACE, so your job can access it.
+    
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.TF_VAR_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.TF_VAR_SECRET_KEY }}
+        aws-region: 'ap-south-1'
+        
+    - name: Run a shell script
+      run: |
+        cd ~/cicd-setup/scripts
+        ./phase1.sh

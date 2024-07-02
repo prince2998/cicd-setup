@@ -1,18 +1,8 @@
-resource "aws_security_group" "allow_req_ports_sonar" {
-  name        = "allow_req_ports_sonar"
+resource "aws_security_group" "allow_req_ports_node2" {
+  name        = "allow_req_ports_node2"
   description = "Allow needed ports like ssh, http, https etc"
 
-<<<<<<< HEAD
-
-   ingress {
-    description = "TLS from VPC"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-=======
-  dynamic "ingress" {
+    dynamic "ingress" {
       for_each = var.ports
       iterator = port
       content {
@@ -23,7 +13,7 @@ resource "aws_security_group" "allow_req_ports_sonar" {
         cidr_blocks = ["0.0.0.0/0"]
       }   
     }
-    
+
   ingress {
     description = "TLS from VPC"
     from_port   = 3000
@@ -39,7 +29,6 @@ resource "aws_security_group" "allow_req_ports_sonar" {
       cidr_blocks = ["0.0.0.0/0"]
     }
   
->>>>>>> d51ee086c26798c306043411f6ff9bdc717945c6
   egress {
     from_port   = 0
     to_port     = 0
@@ -49,5 +38,5 @@ resource "aws_security_group" "allow_req_ports_sonar" {
 }
 
 output "securityGroupDetails" {
-  value = aws_security_group.allow_req_ports_sonar.id
+  value = aws_security_group.allow_req_ports_node2.id
 }

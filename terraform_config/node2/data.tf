@@ -18,8 +18,4 @@ data "aws_ami" "ubuntu" {
 
 output "ami_id" {
   value = data.aws_ami.ubuntu.id
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> d51ee086c26798c306043411f6ff9bdc717945c6

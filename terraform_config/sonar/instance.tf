@@ -28,4 +28,11 @@ output "public_dns" {
 
 output "Name" {
   value = var.aws_instance_name
+<<<<<<< HEAD
+=======
+}
+
+output "private_ip" {
+  value = aws_instance.web.private_ip
+>>>>>>> d51ee086c26798c306043411f6ff9bdc717945c6
 }

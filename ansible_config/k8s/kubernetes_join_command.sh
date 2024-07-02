@@ -1,0 +1,1 @@
+kubeadm join 172.31.41.218:6443 --token aflz5o.5llw7op16sqbpojt --discovery-token-ca-cert-hash sha256:57cec06e56480ac3160f03a2e000186bb92db35888604387c9036a8e9c19c447 

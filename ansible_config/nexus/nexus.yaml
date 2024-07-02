@@ -1,4 +1,5 @@
 ---
+<<<<<<< HEAD
 - name: Install Nexus
   hosts: nexus
   become: true
@@ -22,3 +23,50 @@
 
   - name: Start Nexus
     shell: /home/ubuntu/nexus-3.53.0-01/bin/nexus start
+=======
+- name: Install Docker and Nexus
+  hosts: nexus
+  become: true
+  tasks:
+  - name: Install required packages for Docker
+    apt:
+      name:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - gnupg-agent
+        - software-properties-common
+      state: present
+      update_cache: yes
+
+  - name: Add Docker’s official GPG key
+    apt_key:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      state: present
+
+  - name: Set up the stable repository
+    apt_repository:
+      repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+      state: present
+
+  - name: Install Docker CE
+    apt:
+      name: 
+        - docker-ce 
+        - docker-ce-cli 
+        - containerd.io  
+        - docker-buildx-plugin  
+        - docker-compose-plugin
+      state: latest
+      update_cache: yes
+
+  - name: Attempt to run 'sonar' container
+    command: docker run -d -p 8081:8081 --name=nexus sonatype/nexus3:latest
+    register: docker_run
+    failed_when: "'container name \"/nexus\" is already in use' not in docker_run.stderr"
+
+  - name: Start Nexus container
+    shell: docker run -d -p 8081:8081 --name=nexus sonatype/nexus3:latest
+    ignore_errors: true
+    #when: docker_run.failed
+>>>>>>> d51ee086c26798c306043411f6ff9bdc717945c6

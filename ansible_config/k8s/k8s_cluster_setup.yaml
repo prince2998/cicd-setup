@@ -1,4 +1,5 @@
 ---
+<<<<<<< HEAD
 ##### Play to add private IPs of k8s-master and k8s-node1 to master.sh and nodes.sh scripts.
 - name: Add private IP of k8s instances to init scripts 
   hosts: localhost
@@ -123,3 +124,224 @@
           mode: "0600"
           owner: jenkins
           group: jenkins
+=======
+##### Play to add private IPs of k8s_master, k8s_node1, k8s_node2 to master.sh and nodes.sh scripts.
+- name: Add private IP of k8s instances to init scripts 
+  hosts: localhost
+  connection: local
+  become: true
+  gather_facts: no
+  tasks:
+  - name: Run add_k8s_ip.sh
+    ansible.builtin.shell:
+      chdir: "."
+      cmd: "bash add_k8s_ip.sh"
+    register: shell_output
+
+  - name: Print Output
+    debug:
+      msg: "{{ shell_output.stdout }}"
+
+##### Play to setup and configure k8s control plane node #####
+- name: Setup k8s Control Plane (master) node
+  hosts: k8s_master
+  become: true
+  tasks:
+  - name: Copy master.sh script to k8s control plane node
+    copy:
+      src: master.sh
+      dest: /root/master.sh
+      mode: '0755'
+  - name: Configure Control Plane (master) node
+    shell: bash /root/master.sh
+    async: 600 # Run for up to 600 seconds
+    poll: 10   # Check every 10 seconds
+    register: master_output
+
+  - name: Print Output
+    debug:
+      msg: "{{ master_output.stdout }}"
+    when: master_output is defined
+    notify: Hold kubelet, kubeadm, and kubectl at current version
+
+  - name: Get kubeadm join command
+    shell: kubeadm token create --print-join-command
+    register: kubernetes_join_command
+  
+  - name: Create join_cluster to local file
+    become: yes
+    copy: 
+      content: "{{ kubernetes_join_command.stdout }}" 
+      dest: kubernetes_join_command.sh 
+      owner: root
+      mode: '0644'
+    delegate_to: localhost
+    run_once: true
+  
+  - name: Create kubectl alias
+    lineinfile:
+      dest: /root/.bashrc
+      line: 'alias k=kubectl'
+      state: present
+
+  - name: Check on async task
+    async_status:
+      jid: "{{ master_output.ansible_job_id }}"
+    register: job_result
+    until: job_result.finished
+    retries: 60 
+
+  handlers:
+  - name: Hold kubelet, kubeadm, and kubectl at current version
+    apt:
+      name: "{{ item }}"
+      state: hold
+    loop:
+    - kubelet
+    - kubeadm
+    - kubectl
+
+##### Play to configure kubectl for ubuntu user #####
+- name: Configure kubectl for ubuntu user
+  hosts: k8s_master
+  become: true
+  tasks:
+  - name: Create .kube directory for ubuntu user
+    file:
+      path: /home/ubuntu/.kube
+      state: directory
+      owner: ubuntu
+      group: ubuntu
+      mode: '0755'
+  - name: Copy admin.conf to ubuntu's .kube directory
+    copy:
+      remote_src: "true"
+      src: /etc/kubernetes/admin.conf
+      dest: /home/ubuntu/.kube/config
+      owner: ubuntu
+      group: ubuntu
+      mode: '0644'
+  - name: Set environment variable for kubectl for Ubuntu user 
+    lineinfile:
+      dest: /home/ubuntu/.bashrc
+      line: 'export KUBECONFIG=/home/ubuntu/.kube/config'
+      state: present
+      create: yes
+    notify:
+      - Reload bashrc
+  handlers: 
+  - name: Reload bashrc
+    shell: 'source /home/ubuntu/.bashrc'
+    args:
+      executable: /bin/bash
+
+##### Play to setup and configure k8s worker node1 #####
+- name: Setup k8s worker node1
+  hosts: k8s_node1
+  become: true
+  tasks:
+  - name: Copy nodes.sh script to k8s worker node
+    copy:
+      src: nodes.sh
+      dest: /root/nodes.sh
+      mode: '0755'
+  - name: Configure Worker node1
+    shell: bash /root/nodes.sh
+    async: 600 # Run for up to 600 seconds
+    poll: 10   # Check every 10 seconds
+    register: node1_output
+
+  - name: Print Output
+    debug:
+      msg: "{{ node1_output.stdout }}"
+    when: node1_output is defined
+    notify: Hold kubelet, kubeadm, and kubectl at current version
+
+  - name: Copy kubernetes_join_command
+    copy:
+      src: kubernetes_join_command.sh
+      dest: /root/kubernetes_join_command.sh
+      mode: '0755'
+  - name: Join k8s cluster  
+    shell: /root/kubernetes_join_command.sh
+    when: kubernetes_join_command is defined
+
+##### Play to setup and configure k8s worker node2 #####
+- name: Setup k8s worker node2
+  hosts: k8s_node2
+  become: true
+  tasks:
+  - name: Copy nodes.sh script to k8s worker node
+    copy:
+      src: nodes.sh
+      dest: /root/nodes.sh
+      mode: '0755'
+  - name: Configure Worker node2
+    shell: bash /root/nodes.sh
+    async: 600 # Run for up to 600 seconds
+    poll: 10   # Check every 10 seconds
+    register: node2_output
+
+  - name: Print Output
+    debug:
+      msg: "{{ node2_output.stdout }}"
+    when: node2_output is defined
+    notify: Hold kubelet, kubeadm, and kubectl at current version
+
+  - name: Copy kubernetes_join_command
+    copy:
+      src: kubernetes_join_command.sh
+      dest: /root/kubernetes_join_command.sh
+      mode: '0755'
+  - name: Join k8s cluster  
+    shell: /root/kubernetes_join_command.sh
+    when: kubernetes_join_command is defined
+
+#### Plays to copy kubeconfig to jenkins server for jenkins user #### Required for Stage V & VI : Deploying application on k8s cluster #####
+
+##### PLAY 1 : COPY kubeconfig from k8s_master node to localhost #####
+- name: Copy the kubeconfig from k8s_master 
+  hosts: k8s_master
+  become: true
+  tasks:
+  - name: Fetch the file from the k8s_master to localhost
+    run_once: yes
+    fetch:
+      src: /etc/kubernetes/admin.conf
+      dest: "./{{ inventory_hostname }}/admin.conf"
+      flat: yes
+    delegate_to: k8s_master
+  - name: Copy the kubeconfig to the worker nodes
+    copy:
+     src: "./{{ inventory_hostname }}/admin.conf"
+     dest: "/home/ubuntu/.kube/config"
+     owner: ubuntu
+     group: ubuntu
+     mode: '0644'
+    when: inventory_hostname != 'k8s_master'
+
+##### PLAY 2 : INSTALL KUBECTL, CREATE .kube direcoty in $HOME of jenkins user, copy kubeconfig from localhost buffer to Jenkins server and sets the permission to 0600 and ownership to jenkins:jenkins#####
+- name: Jenkins User kubectl Setup
+  hosts: jenkins
+  become: true
+  tasks:
+  - name: Install kubectl
+    community.general.snap:
+      name: kubectl 
+      classic: yes
+      state: present
+  - name: Create directory and set ownership of .kube directory for jenkins user
+    file:
+      path: /var/lib/jenkins/.kube
+      state: directory
+      owner: jenkins
+      group: jenkins
+      mode: '0755'
+  - name: Copy the file from localhost to jenkins
+    copy:
+      src: "k8s_master/admin.conf"
+      dest: "/var/lib/jenkins/.kube/config"
+      mode: "0600"
+      owner: jenkins
+      group: jenkins
+>>>>>>> d51ee086c26798c306043411f6ff9bdc717945c6
